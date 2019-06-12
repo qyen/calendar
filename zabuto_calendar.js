@@ -28,6 +28,7 @@ $.fn.zabuto_calendar = function (options) {
         $calendarElement.data('initYear', opts.year);
         $calendarElement.data('initMonth', opts.month);
         $calendarElement.data('monthLabels', opts.month_labels);
+        $calendarElement.data("monthFormat",opts.year_month_format || opts.month_format);
         $calendarElement.data('weekStartsOn', opts.weekstartson);
         $calendarElement.data('navIcons', opts.nav_icon);
         $calendarElement.data('dowLabels', opts.dow_labels);
@@ -204,12 +205,10 @@ $.fn.zabuto_calendar = function (options) {
                 });
             }
 
-            var monthLabels = $calendarElement.data('monthLabels');
-
             var $prevMonthCell = $('<td></td>').append($prevMonthNav);
             var $nextMonthCell = $('<td></td>').append($nextMonthNav);
+            var $currMonthLabel = formatMonthHeaderLiteral($calendarElement,year,month);
 
-            var $currMonthLabel = $('<span>' + monthLabels[month] + ' ' + year + '</span>');
             $currMonthLabel.dblclick(function () {
                 var dateInitObj = $calendarElement.data('initDate');
                 drawTable($calendarElement, $tableObj, dateInitObj.getFullYear(), dateInitObj.getMonth());
@@ -223,6 +222,13 @@ $.fn.zabuto_calendar = function (options) {
 
             $tableObj.append($monthHeaderRow);
             return $tableObj;
+        }
+        function formatMonthHeaderLiteral($calendarElement,year,month){
+            var monthLabels = $calendarElement.data('monthLabels');
+            var monthFormat = $calendarElement.data("monthFormat") || "{$month_label} {$year}";
+            var monthLiteral = monthFormat.replace("{$month_label}",monthLabels[month]).replace("{$month}",month+1).replace("{$year}",year);
+
+            return $('<span>' + monthLiteral + '</span>');
         }
 
         function appendDayOfWeekHeader($calendarElement, $tableObj) {
@@ -549,6 +555,7 @@ $.fn.zabuto_calendar = function (options) {
  *   legend:            object array, [{type: string, label: string, classname: string}]
  *   action:            function
  *   action_nav:        function
+ *   year_month_format :     string 
  */
 $.fn.zabuto_calendar_defaults = function () {
     var now = new Date();
@@ -569,7 +576,8 @@ $.fn.zabuto_calendar_defaults = function () {
         ajax: false,
         legend: false,
         action: false,
-        action_nav: false
+        action_nav: false,
+        year_month_format : false
     };
     return settings;
 };
@@ -687,7 +695,8 @@ $.fn.zabuto_calendar_language = function (lang) {
         case 'jp':
             return {
                 month_labels: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
-                dow_labels: ["月", "火", "水", "木", "金", "土", "日"]
+                dow_labels: ["月", "火", "水", "木", "金", "土", "日"],
+                month_format: "{$year}年 {$month_label}"
             };
             break;
 
